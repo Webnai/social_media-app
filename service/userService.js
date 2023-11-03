@@ -249,36 +249,31 @@ class UserService {
         }
     }
 
-    //function to handle user Post
+    // function to handle user Post
     static async userPost(req, res, next) {
         try {
-            // check if user exists
-            const user = await userModel.findOne({
-                where: {
-                    email: req.body.email,
-                },
-            });
+            // find user
+            const user = await userModel.findOne({ where: { id: req.params.id } });
+
             if (!user) {
-                return res.status(400).json({
+                return res.status(404).json({
                     status: 'error',
                     message: 'User not found',
                 });
             }
-            // create user post
-            const post = postModel.findAll({ where: { userId: user.id } });
-            post = await postModel.create({
-                title: req.body.title,
-                body: req.body.body,
-                userId: user.id,
-            });
-            // return user data
+
+            // find user's posts
+            const posts = await postModel.findAll({ where: { userId: user.id } });
+
+            // return user's posts
             return res.status(200).json({
                 status: 'success',
-                message: 'user post created successfully',
-                data: userPost,
+                message: 'User posts retrieved successfully',
+                data: posts,
             });
         } catch (error) {
             console.error(error);
+            next(error);
         }
     }
 }

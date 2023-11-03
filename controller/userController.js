@@ -1,10 +1,4 @@
-import userModel from '../models/userModel.js';
 import UserService from '../service/userService.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { Op } from 'sequelize';
-
-import UserService from '../services/userService.js';
 
 class UserController {
     // function to handle user registration
