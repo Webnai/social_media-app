@@ -1,5 +1,6 @@
-import userModel from '../models/userModel.js';
 import sessionModel from '../models/sessionModel.js';
+import userModel from '../models/userModel.js';
+import postModel from '../models/postModel.js';
 import jwt from 'jsonwebtoken';
 class UserService {
 
@@ -179,7 +180,107 @@ class UserService {
             console.error(error);
         }
     }
-    
+
+    //function to handle update user
+    static async updateUser(req, res, next) {
+        try {
+            // check if user exists
+            const user = await userModel.findOne({
+                where: {
+                    email: req.body.email,
+                },
+            });
+            if (!user) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'User not found',
+                });
+            }
+            // update user data
+            const updatedUser = await userModel.update({
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+            }, {
+                where: {
+                    email: req.body.email,
+                },
+            });
+            // return user data
+            return res.status(200).json({
+                status: 'success',
+                message: 'user updated successfully',
+                data: updatedUser,
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    //function to handle delete user
+    static async deleteUser(req, res, next) {
+        try {
+            // check if user exists
+            const user = await userModel.findOne({
+                where: {
+                    email: req.body.email,
+                },
+            });
+            if (!user) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'User not found',
+                });
+            }
+            // delete user data
+            const deletedUser = await userModel.destroy({
+                where: {
+                    email: req.body.email,
+                },
+            });
+            // return user data
+            return res.status(200).json({
+                status: 'success',
+                message: 'user deleted successfully',
+                data: deletedUser,
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    //function to handle user Post
+    static async userPost(req, res, next) {
+        try {
+            // check if user exists
+            const user = await userModel.findOne({
+                where: {
+                    email: req.body.email,
+                },
+            });
+            if (!user) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'User not found',
+                });
+            }
+            // create user post
+            const post = postModel.findAll({ where: { userId: user.id } });
+            post = await postModel.create({
+                title: req.body.title,
+                body: req.body.body,
+                userId: user.id,
+            });
+            // return user data
+            return res.status(200).json({
+                status: 'success',
+                message: 'user post created successfully',
+                data: userPost,
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 
 export default UserService;
