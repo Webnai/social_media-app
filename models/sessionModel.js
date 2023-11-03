@@ -32,4 +32,13 @@ Session.init({
     modelName: 'Session',
 });
 
+// defining association between user and session
+Session.associate = (models) => {
+    Session.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'CASCADE',
+    });
+};
+
 export default Session;
