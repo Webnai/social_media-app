@@ -1,4 +1,5 @@
 import userModel from '../models/userModel.js';
+import sessionModel from '../models/sessionModel.js';
 import jwt from 'jsonwebtoken';
 class UserService {
 
@@ -82,7 +83,7 @@ class UserService {
                 userId: user.id,
                 token,
             });
-            
+
             // return user data
             return res.status(200).json({
                 status: 'success',
@@ -124,6 +125,58 @@ class UserService {
         } catch (error) {
             console.error(error);
             next(error);
+        }
+    }
+
+    // function to handle get a user
+    static async getUser(req, res, next) {
+        try {
+            // check if user exists
+            const user = await userModel.findOne({
+                where: {
+                    email: req.body.email,
+                },
+            });
+            if (!user) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'User not found',
+                });
+            }
+            // return user data
+            return res.status(200).json({
+                status: 'success',
+                message: 'user retrieved successfully',
+                data: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                },
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    //function to handle get all users
+    static async getAllUsers(req, res, next) {
+        try {
+            // check if user exists
+            const users = await userModel.findAll();
+            if (!users) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Users not found',
+                });
+            }
+            // return user data
+            return res.status(200).json({
+                status: 'success',
+                message: 'users retrieved successfully',
+                data: users,
+            });
+        } catch (error) {
+            console.error(error);
         }
     }
     

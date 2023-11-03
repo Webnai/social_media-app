@@ -36,6 +36,17 @@ class UserController {
             next(error);
         }
     }
+
+    // function to handle get a user
+    static async getUser(req, res, next) {
+        try {
+            const response = await UserService.getUser(req.body);
+            return res.status(200).json({message: 'user retrieved successfully', response});
+        } catch (error) {
+            next(error);
+        }
+    }
+
 };
 
 export default UserController;
