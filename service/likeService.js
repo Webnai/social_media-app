@@ -1,6 +1,6 @@
-import Like from "../models/likeModel";
-import Post from "../models/postModel";
-import User from "../models/userModel";
+import Like from "../models/likeModel.js";
+import Post from "../models/postModel.js";
+import User from "../models/userModel.js";
 
 class LikeService {
     // function to handle create like

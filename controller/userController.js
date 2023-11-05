@@ -1,11 +1,24 @@
 import UserService from '../service/userService.js';
+import userModel from '../models/userModel.js';
+import authSchema from '../validator/validator.js';
 
 class UserController {
     // function to handle user registration
-    static async register(req, res, next) {
+    static async registerUser(req, res, next) {
         try {
-            const response = await UserService.register(req.body);
-            return res.status(201).json({message: 'created successfully', response});
+            const {username, email, password} = req.body;
+
+            
+
+             // check if user already exists
+            const existingUser = await userModel.findOne({ where: email });
+            if (existingUser) {
+                return res.status(400).json({ message: 'User already exists' });
+            }
+
+            // proceed to register user if input is valid
+            const response = await UserService.registerUser(username, email, password);
+            return res.status(201).json({message: 'user registered successfully', response});
         } catch (error) {
             next(error);
         }
@@ -36,6 +49,16 @@ class UserController {
         try {
             const response = await UserService.getUser(req.body);
             return res.status(200).json({message: 'user retrieved successfully', response});
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // function to handle get all users
+    static async getAllUsers(req, res, next) {
+        try {
+            const response = await UserService.getAllUsers(req.body);
+            return res.status(200).json({message: 'users retrieved successfully', response});
         } catch (error) {
             next(error);
         }

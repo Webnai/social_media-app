@@ -5,39 +5,19 @@ import jwt from 'jsonwebtoken';
 class UserService {
 
     // function to handle user registration
-    static async register(req, res, next) {
+    static async registerUser(username, email, password) {
         try {
-            // check if user already exists
-            const userExists = await userModel.findOne({
-                where: {
-                    email: req.body.email,
-                },
-            });
-            if (userExists) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'User already exists',
-                });
-            }
             // create new user
             const newUser = await userModel.create({
-                username: req.body.username,
-                email: req.body.email,
-                password: req.body.password,
+                username,
+                email,
+                password,
             });
-            // generate token
-            const token = jwt.sign(
-                {
-                    id: newUser.id,
-                    email: newUser.email,
-                },
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                }
-            );
+            return await newUser.save();
+            
         } catch (error) {
             console.error(error);
+            res.status(500).json({ error: error.message });
         }
     }
 
@@ -78,6 +58,65 @@ class UserService {
                     expiresIn: process.env.JWT_EXPIRES_IN,
                 }
             );
+
+            // function to handle forgot password
+            async function forgotPassword(req, res, next) {
+                try {
+                    // check if user exists
+                    const user = await userModel.findOne({
+                        where: {
+                            email: req.body.email,
+                        },
+                    });
+                    if (!user) {
+                        return res.status(400).json({
+                            status: 'error',
+                            message: 'User not found',
+                        });
+                    }
+                    // generate temporary password
+                    const tempPassword = generateTempPassword();
+                    // update user password
+                    await userModel.update(
+                        {
+                            password: tempPassword,
+                        },
+                        {
+                            where: {
+                                email: req.body.email,
+                            },
+                        }
+                    );
+                    // send temporary password to user's email
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        auth: {
+                            user: process.env.EMAIL,
+                            pass: process.env.PASSWORD,
+                        },
+                    });
+                    const mailOptions = {
+                        from: process.env.EMAIL,
+                        to: req.body.email,
+                        subject: 'Temporary Password',
+                        text: `Your temporary password is ${tempPassword}`,
+                    };
+                    transporter.sendMail(mailOptions, (error, info) => {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                        }
+                    });
+                    // return success message
+                    return res.status(200).json({
+                        status: 'success',
+                        message: 'Temporary password sent successfully',
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
 
             // create session
             await sessionModel.create({

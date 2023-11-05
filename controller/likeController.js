@@ -1,4 +1,4 @@
-import LikeService from "../service/likeService";
+import LikeService from "../service/likeService.js";
 
 class LikeController {
     // function to handle create like
@@ -41,3 +41,5 @@ class LikeController {
         }
     }
 }
+
+export default LikeController;

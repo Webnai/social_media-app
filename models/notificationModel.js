@@ -21,3 +21,5 @@ const Notification = sequelize.define(
         },
     }
 );
+
+export default Notification;

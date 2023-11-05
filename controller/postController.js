@@ -1,5 +1,4 @@
-import PostService from '../services/postService.js';
-import NotificationService from '../services/notificationService.js';
+import PostService from '../service/postService.js';
 
 class PostController {
     // function to handle create post
@@ -52,3 +51,5 @@ class PostController {
         }
     }
 }
+
+export default PostController;
