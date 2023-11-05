@@ -36,43 +36,18 @@ class UserService {
                     message: 'Invalid credentials',
                 });
             }
-            // check if password is correct
-            const isPasswordCorrect = await bcrypt.compare(
-                req.body.password,
-                user.password
-            );
-            if (!isPasswordCorrect) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid credentials',
-                });
-            }
-
-            // generate token
-            const token = jwt.sign(
-                {
-                    id: user.id,
-                    email: user.email,
-                },
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                }
-            );
 
             // create a session
             req.session.user = {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                token: token,
             }
 
             // return user data
             return res.status(200).json({
                 status: 'success',
                 message: 'logged in successfully',
-                token,
                 data: {
                     id: user.id,
                     username: user.username,
@@ -88,25 +63,12 @@ class UserService {
     static async login(req, res, next) {
         try {
             // check if user exists
-            const { email, password } = req.body;
             const user = await User.findOne({
                 where: {
-                    email,
-                    password,
+                    email: req.body.email,
                 },
             });
             if (!user) {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid credentials',
-                });
-            }
-            // check if password is correct
-            const isPasswordCorrect = await bcrypt.compare(
-                req.body.password,
-                user.password
-            );
-            if (!isPasswordCorrect) {
                 return res.status(400).json({
                     status: 'error',
                     message: 'Invalid credentials',
@@ -118,19 +80,7 @@ class UserService {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                token: token,
             }
-            // generate token
-            const token = jwt.sign(
-                {
-                    id: user.id,
-                    email: user.email,
-                },
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                }
-            );
 
             // function to handle forgot password
             async function forgotPassword(req, res, next) {
@@ -194,7 +144,6 @@ class UserService {
             // create session
             await sessionModel.create({
                 userId: user.id,
-                token,
             });
 
             // return user data
