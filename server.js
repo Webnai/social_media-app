@@ -1,12 +1,19 @@
 import  userRoutes from './routes/user.routes.js';
 import  postRoutes from './routes/post.routes.js';
 import  likeRoutes from './routes/like.routes.js';
+import express from 'express';
+import session from 'express-session';
 import sequelize from './database/db.js';
 import * as dotenv from 'dotenv';
-import express from 'express';
 
 dotenv.config();
 const app = express();
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true
+}));
 
 app.use(express.json());
 app.use("/User", userRoutes);

@@ -11,9 +11,15 @@ class UserController {
             
 
              // check if user already exists
-            const existingUser = await userModel.findOne({ where: email });
+            const existingUser = await userModel.findOne({ where: {email} });
             if (existingUser) {
                 return res.status(400).json({ message: 'User already exists' });
+            }
+
+            // validate user input
+            const { error } = authSchema.authSchema.validate({username, email, password});
+            if (error) {
+                return res.status(400).json({ message: error.details[0].message });
             }
 
             // proceed to register user if input is valid
